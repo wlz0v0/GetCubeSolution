@@ -9,9 +9,11 @@ class OneSideOfCube:
 
 
 Side = [OneSideOfCube.block0, OneSideOfCube.block1, OneSideOfCube.block2, OneSideOfCube.block3]
+coordinate = [108, 324, 324, 108, 108, 108, 324, 324] # 前四个为宽像素，后四个为高像素
 
 colorDict = {"white": "0", "yellow": "0", "green": '0', "blue": '0', "orange": '0', "red": '0'}
-oppositeDict = {"white": "yellow", "yellow": "white", "green": "blue", "blue": "green", "orange": "red", "red": "orange"}
+oppositeDict = {"white": "yellow", "yellow": "white", "green": "blue",
+                "blue": "green", "orange": "red", "red": "orange"}
 
 
 def get_opposite_side(side):
@@ -61,7 +63,7 @@ def color_recognition(b, g, r, flag=0):  # flag为1时是用于识别颜色并�
     # 计算v大小
     v = C_max
     # 根据hsv进行比较判断
-    if 0 <= h <= 360 and 0 <= s <= 30 / 255 and 120 / 255 <= v <= 1:  # white
+    if 0 <= h <= 360 and 0 <= s < 43 / 255 and 100 / 255 <= v <= 1:  # white
         return colorDict["white"] if flag else "white"
     elif 0 <= h <= 10 and 43 / 255 <= s <= 1 and 46 / 255 <= v <= 1:  # red
         return colorDict["red"] if flag else "red"
@@ -77,28 +79,15 @@ def color_recognition(b, g, r, flag=0):  # flag为1时是用于识别颜色并�
 
 def color_extraction(side, flag=0):
     solution = ""
-    init_img = cv2.imread(side + ".jpg")                # 获得初始图片
-    resize_img = cv2.resize(init_img, (576, 768))       # 缩放初始图片
-    final_img = resize_img[0:600, 0:576]                # 图片适当裁剪
-    for block in range(2):
-        b = final_img[150, 288 * block + 144, 0]
-        g = final_img[150, 288 * block + 144, 1]
-        r = final_img[150, 288 * block + 144, 2]
+    init_img = cv2.imread(side + ".jpg")  # 获得初始图片，使用1：1拍摄照片！
+    final_img = cv2.resize(init_img, (432, 432))  # 缩放初始图片
+    for block in range(4):
+        b = final_img[coordinate[block + 4], coordinate[block], 0]
+        g = final_img[coordinate[block + 4], coordinate[block], 1]
+        r = final_img[coordinate[block + 4], coordinate[block], 2]
         Side[block] = color_recognition(b, g, r, flag)
         if flag == 1:
             solution += Side[block]
-    b = final_img[450, 432, 0]
-    g = final_img[450, 432, 1]
-    r = final_img[450, 432, 2]
-    Side[2] = color_recognition(b, g, r, flag)
-    if flag == 1:
-        solution += Side[2]
-    b = final_img[450, 144, 0]
-    g = final_img[450, 144, 1]
-    r = final_img[450, 144, 2]
-    Side[3] = color_recognition(b, g, r, flag)
-    if flag == 1:
-        solution += Side[3]
     return solution
 
 
